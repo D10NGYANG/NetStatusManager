@@ -1,7 +1,6 @@
 package com.dlong.netstatusmanager
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -13,11 +12,11 @@ import com.dlong.netstatus.DLNetManager
 import com.dlong.netstatus.annotation.DLNet
 import com.dlong.netstatus.annotation.NetType
 import com.dlong.netstatus.utils.NetUtils
-import com.dlong.netstatusmanager.databinding.ActivityMainBinding
+import com.dlong.netstatusmanager.databinding.ActivityLastBinding
 
-class MainActivity : AppCompatActivity() {
+class LastActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityLastBinding
 
     override fun onStart() {
         super.onStart()
@@ -31,7 +30,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_last)
 
         binding.netType = DLNetManager.getInstance(this.application).getNetType()
         // 检查定位权限
@@ -48,19 +47,11 @@ class MainActivity : AppCompatActivity() {
     @DLNet
     fun onNetStatusChange(str: @NetType String) {
         // 网络状态改变
-        Log.e("测试", "Main网络状态改变：${str}")
+        Log.e("测试", "Last网络状态改变：${str}")
         binding.netType = str
-        if (str == NetType.WIFI) {
-            if (NetUtils.is5GWifiConnected(this)) {
-                Log.e("测试", "这是5G WI-FI")
-            } else{
-                Log.e("测试", "这是2.4G WI-FI")
-            }
-            Log.e("测试", "WI-FI名：${NetUtils.getConnectedWifiSSID(this)}")
-        }
     }
 
-    fun go(v: View) {
-        startActivity(Intent(this, LastActivity::class.java))
+    fun finish(v: View) {
+        finish()
     }
 }
