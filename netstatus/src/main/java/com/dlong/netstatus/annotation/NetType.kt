@@ -12,12 +12,12 @@ annotation class NetType {
 
     companion object {
         // wifi
-        val WIFI = "WIFI"
+        const val WIFI = "WIFI"
         // 手机网络
-        val NET = "NET"
+        const val NET = "NET"
         // 未识别网络
-        val NET_UNKNOWN = "NET_UNKNOWN"
+        const val NET_UNKNOWN = "NET_UNKNOWN"
         // 没有网络
-        val NONE = "NONE"
+        const val NONE = "NONE"
     }
 }

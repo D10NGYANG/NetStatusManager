@@ -23,6 +23,7 @@ class DLNetManager(private val application: Application) {
         @Volatile
         private var INSTANCE : DLNetManager? = null
 
+        @JvmStatic
         fun getInstance(application: Application) : DLNetManager {
             val temp = INSTANCE
             if (null != temp) {
