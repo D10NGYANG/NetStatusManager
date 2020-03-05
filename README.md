@@ -61,3 +61,13 @@
         }
     }
 ```
+## 混淆规则
+
+```kotlin
+-keep class com.dlong.netstatus.** {*;}
+-dontwarn com.dlong.netstatus.**
+-keepclassmembers class * {
+    @com.dlong.netstatus.annotation.DLNet <methods>;
+    @com.dlong.netstatus.annotation.NetType <fields>;
+}
+```
