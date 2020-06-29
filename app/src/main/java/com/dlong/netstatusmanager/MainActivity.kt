@@ -24,11 +24,6 @@ class MainActivity : AppCompatActivity() {
         DLNetManager.getInstance(this.application).register(this)
     }
 
-    override fun onStop() {
-        super.onStop()
-        DLNetManager.getInstance(this.application).unRegister(this)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
@@ -43,6 +38,11 @@ class MainActivity : AppCompatActivity() {
                 Log.e("测试", "WI-FI名：${NetUtils.getConnectedWifiSSID(this)}")
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        DLNetManager.getInstance(this.application).unRegister(this)
     }
 
     @DLNet

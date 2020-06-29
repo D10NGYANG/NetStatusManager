@@ -1,5 +1,10 @@
 package com.dlong.netstatus.impl
 
+import android.app.Application
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -7,6 +12,7 @@ import android.util.Log
 import com.dlong.netstatus.annotation.DLNet
 import com.dlong.netstatus.annotation.NetType
 import com.dlong.netstatus.constant.Constants
+import com.dlong.netstatus.utils.NetUtils
 import java.lang.Exception
 import java.lang.RuntimeException
 import java.lang.reflect.Method
@@ -18,14 +24,26 @@ import java.util.HashMap
  * @author D10NG
  * @date on 2019-10-22 11:13
  */
-class NetStatusCallBack : ConnectivityManager.NetworkCallback() {
+class NetStatusCallBack constructor(
+    application: Application
+) : ConnectivityManager.NetworkCallback() {
 
     // 观察者，key=类、value=方法
     private val checkManMap = HashMap<Any, Method>()
+    // 网络状态广播监听
+    private val receiver = NetStatusReceiver()
 
     // 网络状态记录
     @Volatile
     private var netType : @NetType String = NetType.NET_UNKNOWN
+    private var netWork: Network? = null
+
+    init {
+        val filter = IntentFilter()
+        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE")
+        application.registerReceiver(receiver, filter)
+        netType = NetUtils.getNetStatus(application)
+    }
 
     override fun onAvailable(network: Network) {
         super.onAvailable(network)
@@ -42,20 +60,9 @@ class NetStatusCallBack : ConnectivityManager.NetworkCallback() {
         super.onCapabilitiesChanged(network, networkCapabilities)
         Log.i(Constants.TAG, "net status change! 网络连接改变")
         // 表明此网络连接成功验证
-        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
-            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI_AWARE)) {
-                // 使用WI-FI
-                post(NetType.WIFI)
-            } else if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
-                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ) {
-                // 使用蜂窝网络
-                post(NetType.NET)
-            } else{
-                // 未知网络，包括蓝牙、VPN、LoWPAN
-                post(NetType.NET_UNKNOWN)
-            }
-        }
+        val type = NetUtils.getNetStatus(networkCapabilities)
+        if (type == netType) return
+        post(type)
     }
 
     // 执行
@@ -119,5 +126,16 @@ class NetStatusCallBack : ConnectivityManager.NetworkCallback() {
             return m
         }
         return null
+    }
+
+    inner class NetStatusReceiver : BroadcastReceiver() {
+
+        override fun onReceive(context: Context?, intent: Intent?) {
+            context?: return
+            intent?: return
+            val type = NetUtils.getNetStatus(context)
+            if (type == netType) return
+            post(type)
+        }
     }
 }

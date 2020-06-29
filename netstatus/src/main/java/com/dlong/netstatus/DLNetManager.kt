@@ -16,7 +16,7 @@ import com.dlong.netstatus.impl.NetStatusCallBack
 class DLNetManager(private val application: Application) {
 
     // 回调
-    private val netStatusCallBack = NetStatusCallBack()
+    private val netStatusCallBack = NetStatusCallBack(application)
 
     companion object {
 
