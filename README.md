@@ -15,7 +15,7 @@
 
 ```kotlin
 	dependencies {
-	        implementation 'com.github.D10NGYANG:NetStatusManager:1.0'
+	        implementation 'com.github.D10NGYANG:NetStatusManager:1.1'
 	}
 ```
 ## 使用代码
