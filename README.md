@@ -11,20 +11,20 @@
 1、在根目录的`build.gradle`里插入
 
 ```kotlin
-	allprojects {
-		repositories {
-			...
-			maven { url 'https://jitpack.io' }
-		}
-	}
+allprojects {
+  repositories {
+    ...
+    maven { url 'https://jitpack.io' }
+  }
+}
 ```
 
 2、在app的`build.gradle`里插入
 
 ```kotlin
-	dependencies {
-	        implementation 'com.github.D10NGYANG:NetStatusManager:1.3'
-	}
+dependencies {
+        implementation 'com.github.D10NGYANG:NetStatusManager:1.3'
+}
 ```
 
 ## 使用代码
