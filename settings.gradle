@@ -1,3 +1,2 @@
-include ':netstatuslivedata'
 include ':app', ':netstatus'
 rootProject.name='NetStatusManager'

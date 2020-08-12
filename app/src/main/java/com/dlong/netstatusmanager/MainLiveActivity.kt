@@ -4,8 +4,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import com.dlong.netstatus.DLNetManager
 import com.dlong.netstatusmanager.databinding.ActivityMainLiveBinding
-import com.glm.netstatuslivedata.DLNetLiveManager
 
 class MainLiveActivity : AppCompatActivity() {
 
@@ -15,7 +15,7 @@ class MainLiveActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main_live)
 
-        DLNetLiveManager.instance(this.application).getNetType().observe(this, Observer {
+        DLNetManager.getInstance(this.application).getNetTypeLiveData().observe(this, Observer {
             binding.netType = it
         })
     }

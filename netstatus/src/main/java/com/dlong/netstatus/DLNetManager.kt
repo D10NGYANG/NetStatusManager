@@ -57,7 +57,7 @@ class DLNetManager(private val application: Application) {
         manager.unregisterNetworkCallback(netStatusCallBack)
     }
 
-    fun getNetType() : @NetType String {
-        return netStatusCallBack.getNetType()
-    }
+    fun getNetType() = netStatusCallBack.getNetTypeLiveData().value?: NetType.NET_UNKNOWN
+
+    fun getNetTypeLiveData() = netStatusCallBack.getNetTypeLiveData()
 }

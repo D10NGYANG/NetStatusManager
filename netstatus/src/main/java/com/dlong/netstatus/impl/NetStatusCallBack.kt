@@ -9,6 +9,7 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import com.dlong.netstatus.annotation.DLNet
 import com.dlong.netstatus.annotation.NetType
 import com.dlong.netstatus.constant.Constants
@@ -32,17 +33,14 @@ class NetStatusCallBack constructor(
     private val checkManMap = HashMap<Any, Method>()
     // 网络状态广播监听
     private val receiver = NetStatusReceiver()
-
-    // 网络状态记录
-    @Volatile
-    private var netType : @NetType String = NetType.NET_UNKNOWN
-    private var netWork: Network? = null
+    // 网络状态
+    private val netTypeLiveData: MutableLiveData<@NetType String> = MutableLiveData()
 
     init {
         val filter = IntentFilter()
         filter.addAction("android.net.conn.CONNECTIVITY_CHANGE")
         application.registerReceiver(receiver, filter)
-        netType = NetUtils.getNetStatus(application)
+        post(NetUtils.getNetStatus(application))
     }
 
     override fun onAvailable(network: Network) {
@@ -61,13 +59,13 @@ class NetStatusCallBack constructor(
         Log.i(Constants.TAG, "net status change! 网络连接改变")
         // 表明此网络连接成功验证
         val type = NetUtils.getNetStatus(networkCapabilities)
-        if (type == netType) return
+        if (type == netTypeLiveData.value) return
         post(type)
     }
 
     // 执行
     private fun post(str: @NetType String) {
-        netType = str
+        netTypeLiveData.postValue(str)
         val set: Set<Any> = checkManMap.keys
         for (obj in set) {
             val method = checkManMap[obj] ?: continue
@@ -104,7 +102,7 @@ class NetStatusCallBack constructor(
     }
 
     // 获取状态
-    fun getNetType() : @NetType String = netType
+    fun getNetTypeLiveData() : MutableLiveData<@NetType String> = netTypeLiveData
 
     // 查找监听的方法
     private fun findAnnotationMethod(clz: Class<*>) : Method? {
@@ -134,7 +132,7 @@ class NetStatusCallBack constructor(
             context?: return
             intent?: return
             val type = NetUtils.getNetStatus(context)
-            if (type == netType) return
+            if (type == netTypeLiveData.value) return
             post(type)
         }
     }
