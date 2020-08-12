@@ -63,4 +63,8 @@ class MainActivity : AppCompatActivity() {
     fun go(v: View) {
         startActivity(Intent(this, LastActivity::class.java))
     }
+
+    fun goLive(v: View) {
+        startActivity(Intent(this, MainLiveActivity::class.java))
+    }
 }
