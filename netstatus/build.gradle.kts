@@ -3,7 +3,11 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.kapt")
     id("org.jetbrains.kotlin.plugin.parcelize")
+    id("maven-publish")
 }
+
+group = "com.github.D10NG"
+version = "1.5"
 
 android {
     compileSdk = Project.compile_sdk
@@ -33,4 +37,14 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            create("release", MavenPublication::class) {
+                from(components.getByName("release"))
+            }
+        }
+    }
 }
