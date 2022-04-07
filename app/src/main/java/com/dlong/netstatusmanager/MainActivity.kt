@@ -28,7 +28,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-        binding.netType = DLNetManager.getInstance(this.application).getNetType()
         // 检查定位权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
             checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -38,11 +37,28 @@ class MainActivity : AppCompatActivity() {
                 Log.e("测试", "WI-FI名：${NetUtils.getConnectedWifiSSID(this)}")
             }
         }
+
+        // 检查读取手机状态权限
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+            checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.READ_PHONE_STATE), 102)
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         DLNetManager.getInstance(this.application).unRegister(this)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 102 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            binding.netType = DLNetManager.getInstance(this.application).getNetType()
+        }
     }
 
     @DLNet

@@ -14,10 +14,7 @@ import com.dlong.netstatus.annotation.DLNet
 import com.dlong.netstatus.annotation.NetType
 import com.dlong.netstatus.constant.Constants
 import com.dlong.netstatus.utils.NetUtils
-import java.lang.Exception
-import java.lang.RuntimeException
 import java.lang.reflect.Method
-import java.util.HashMap
 
 /**
  * 网络监听
@@ -26,7 +23,7 @@ import java.util.HashMap
  * @date on 2019-10-22 11:13
  */
 class NetStatusCallBack constructor(
-    application: Application
+    val application: Application
 ) : ConnectivityManager.NetworkCallback() {
 
     // 观察者，key=类、value=方法
@@ -58,7 +55,7 @@ class NetStatusCallBack constructor(
         super.onCapabilitiesChanged(network, networkCapabilities)
         Log.i(Constants.TAG, "net status change! 网络连接改变")
         // 表明此网络连接成功验证
-        val type = NetUtils.getNetStatus(networkCapabilities)
+        val type = NetUtils.getNetStatus(application ,networkCapabilities)
         if (type == netTypeLiveData.value) return
         post(type)
     }

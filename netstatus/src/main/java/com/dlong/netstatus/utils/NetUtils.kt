@@ -1,11 +1,13 @@
 package com.dlong.netstatus.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.wifi.WifiManager
 import android.os.Build
+import android.telephony.TelephonyManager
 import com.dlong.netstatus.annotation.NetType
 
 /**
@@ -23,20 +25,7 @@ object NetUtils {
         val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val wifiInfo = wifiManager.connectionInfo?: return false
         // 频段
-        var frequency = 0
-        if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.LOLLIPOP) {
-            frequency = wifiInfo.frequency
-        } else {
-            val ssid = wifiInfo.ssid?: return false
-            if (ssid.length < 2) return false
-            val sid = ssid.substring(1, ssid.length -1)
-            for (scan in wifiManager.scanResults) {
-                if (scan.SSID == sid) {
-                    frequency = scan.frequency
-                    break
-                }
-            }
-        }
+        val frequency = wifiInfo.frequency
         return frequency in 4900..5900
     }
 
@@ -58,14 +47,13 @@ object NetUtils {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val net = manager.activeNetwork
             val ties = manager.getNetworkCapabilities(net)?: return NetType.NONE
-            return getNetStatus(ties)
+            return getNetStatus(context, ties)
         } else {
             val netInfo = manager.activeNetworkInfo
             if (netInfo == null || !netInfo.isAvailable) {
                 return NetType.NONE
             }
             return when(netInfo.type) {
-                ConnectivityManager.TYPE_MOBILE -> NetType.NET
                 ConnectivityManager.TYPE_WIFI -> NetType.WIFI
                 else -> NetType.NET_UNKNOWN
             }
@@ -75,7 +63,8 @@ object NetUtils {
     /**
      * 获取网络状态
      */
-    fun getNetStatus(ties: NetworkCapabilities) : @NetType String {
+    @SuppressLint("MissingPermission")
+    fun getNetStatus(context: Context, ties: NetworkCapabilities) : @NetType String {
         return if (!ties.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
             NetType.NONE
         } else {
@@ -86,7 +75,19 @@ object NetUtils {
             } else if (ties.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
                 ties.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ) {
                 // 使用蜂窝网络
-                NetType.NET
+                val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+                val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    telephonyManager.dataNetworkType
+                } else {
+                    telephonyManager.networkType
+                }
+                when(type) {
+                    TelephonyManager.NETWORK_TYPE_GPRS,TelephonyManager.NETWORK_TYPE_EDGE,TelephonyManager.NETWORK_TYPE_CDMA,TelephonyManager.NETWORK_TYPE_1xRTT,TelephonyManager.NETWORK_TYPE_IDEN -> NetType.NET_2G
+                    TelephonyManager.NETWORK_TYPE_EVDO_A,TelephonyManager.NETWORK_TYPE_UMTS,TelephonyManager.NETWORK_TYPE_EVDO_0,TelephonyManager.NETWORK_TYPE_HSDPA,TelephonyManager.NETWORK_TYPE_HSUPA,TelephonyManager.NETWORK_TYPE_HSPA,TelephonyManager.NETWORK_TYPE_EVDO_B,TelephonyManager.NETWORK_TYPE_EHRPD,TelephonyManager.NETWORK_TYPE_HSPAP -> NetType.NET_3G
+                    TelephonyManager.NETWORK_TYPE_LTE -> NetType.NET_4G
+                    TelephonyManager.NETWORK_TYPE_NR -> NetType.NET_5G
+                    else -> NetType.NET_UNKNOWN
+                }
             } else{
                 // 未知网络，包括蓝牙、VPN、LoWPAN
                 NetType.NET_UNKNOWN
