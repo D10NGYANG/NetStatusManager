@@ -23,7 +23,7 @@ allprojects {
 
 ```kotlin
 dependencies {
-        implementation 'com.github.D10NGYANG:NetStatusManager:1.3'
+    implementation 'com.github.D10NGYANG:NetStatusManager:1.5'
 }
 ```
 
