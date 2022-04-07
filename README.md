@@ -23,11 +23,13 @@ allprojects {
 
 ```kotlin
 dependencies {
-    implementation 'com.github.D10NGYANG:NetStatusManager:1.5'
+    implementation 'com.github.D10NGYANG:NetStatusManager:1.6-RC01'
 }
 ```
 
 ## 使用代码
+
+> 注意：版本1.6-RC01以后由于支持2G～5G的移动网络判断，需要先获取 Manifest.permission.READ_PHONE_STATE 权限；
 
 ### LiveData监听
 
